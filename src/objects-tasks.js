@@ -242,10 +242,31 @@ function fromJSON(proto, json) {
  *      { country: 'Russia',  city: 'Saint Petersburg' }
  *    ]
  */
-function sortCitiesArray(/* arr */) {
-  throw new Error('Not implemented');
-}
+function sortCitiesArray(arr) {
+  function compareFunc(adr1, adr2) {
+    let diff;
+    const byCountry1 = adr1.country.charCodeAt();
+    const byCountry2 = adr2.country.charCodeAt();
+    if (byCountry1 !== byCountry2) {
+      diff = byCountry1 - byCountry2;
+    } else {
+      const byCity1 = adr1.city.charCodeAt();
+      const byCity2 = adr2.city.charCodeAt();
+      diff = byCity1 - byCity2;
+    }
+    return diff;
+  }
 
+  return arr.sort(compareFunc);
+}
+sortCitiesArray([
+  { country: 'Russia', city: 'Moscow' },
+  { country: 'Belarus', city: 'Minsk' },
+  { country: 'Poland', city: 'Warsaw' },
+  { country: 'Russia', city: 'Saint Petersburg' },
+  { country: 'Poland', city: 'Krakow' },
+  { country: 'Belarus', city: 'Brest' },
+]);
 /**
  * Groups elements of the specified array by key.
  * Returns multimap of keys extracted from array elements via keySelector callback

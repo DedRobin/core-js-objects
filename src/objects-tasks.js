@@ -259,14 +259,7 @@ function sortCitiesArray(arr) {
 
   return arr.sort(compareFunc);
 }
-sortCitiesArray([
-  { country: 'Russia', city: 'Moscow' },
-  { country: 'Belarus', city: 'Minsk' },
-  { country: 'Poland', city: 'Warsaw' },
-  { country: 'Russia', city: 'Saint Petersburg' },
-  { country: 'Poland', city: 'Krakow' },
-  { country: 'Belarus', city: 'Brest' },
-]);
+
 /**
  * Groups elements of the specified array by key.
  * Returns multimap of keys extracted from array elements via keySelector callback
@@ -297,10 +290,33 @@ sortCitiesArray([
  *    "Poland" => ["Lodz"]
  *   }
  */
-function group(/* array, keySelector, valueSelector */) {
-  throw new Error('Not implemented');
+function group(array, keySelector, valueSelector) {
+  const myMap = new Map();
+  array.forEach((item) => {
+    const key = keySelector(item);
+    const value = valueSelector(item);
+    if (myMap.get(key)) {
+      const curArray = myMap.get(key);
+      curArray.push(value);
+      myMap.set(key, curArray);
+    } else {
+      myMap.set(key, [value]);
+    }
+  });
+  return myMap;
 }
-
+group(
+  [
+    { country: 'Belarus', city: 'Brest' },
+    { country: 'Russia', city: 'Omsk' },
+    { country: 'Russia', city: 'Samara' },
+    { country: 'Belarus', city: 'Grodno' },
+    { country: 'Belarus', city: 'Minsk' },
+    { country: 'Poland', city: 'Lodz' },
+  ],
+  (item) => item.country,
+  (item) => item.city
+);
 /**
  * Css selectors builder
  *

@@ -360,32 +360,113 @@ function group(array, keySelector, valueSelector) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  selector: '',
+  prevCallback: null,
+  element(value) {
+    if (
+      [
+        this.id.name,
+        this.class.name,
+        this.attr.name,
+        this.pseudoClass.name,
+        this.pseudoElement.name,
+      ].includes(this.prevCallback)
+    )
+      throw new Error(
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element'
+      );
+    const prevCallback = this.element.name;
+
+    const selector = this.selector + value;
+    const element = () => {
+      throw new Error(
+        'Element, id and pseudo-element should not occur more then one time inside the selector'
+      );
+    };
+    return { ...cssSelectorBuilder, prevCallback, element, selector };
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    if (
+      [
+        this.class.name,
+        this.attr.name,
+        this.pseudoClass.name,
+        this.pseudoElement.name,
+      ].includes(this.prevCallback)
+    )
+      throw new Error(
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element'
+      );
+    const prevCallback = this.id.name;
+    const id = () => {
+      throw new Error(
+        'Element, id and pseudo-element should not occur more then one time inside the selector'
+      );
+    };
+    const selector = `${this.selector}#${value}`;
+    return { ...cssSelectorBuilder, prevCallback, id, selector };
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    if (
+      [this.attr.name, this.pseudoClass.name, this.pseudoElement.name].includes(
+        this.prevCallback
+      )
+    )
+      throw new Error(
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element'
+      );
+    const prevCallback = this.class.name;
+    const selector = `${this.selector}.${value}`;
+    return { ...cssSelectorBuilder, prevCallback, selector };
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    if (
+      [this.pseudoClass.name, this.pseudoElement.name].includes(
+        this.prevCallback
+      )
+    )
+      throw new Error(
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element'
+      );
+    const prevCallback = this.attr.name;
+
+    const selector = `${this.selector}[${value}]`;
+    return { ...cssSelectorBuilder, prevCallback, selector };
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    if ([this.pseudoElement.name].includes(this.prevCallback))
+      throw new Error(
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element'
+      );
+    const prevCallback = this.pseudoClass.name;
+
+    const selector = `${this.selector}:${value}`;
+    return { ...cssSelectorBuilder, prevCallback, selector };
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    const prevCallback = this.pseudoElement.name;
+
+    const pseudoElement = () => {
+      throw new Error(
+        'Element, id and pseudo-element should not occur more then one time inside the selector'
+      );
+    };
+    const selector = `${this.selector}::${value}`;
+    return { ...cssSelectorBuilder, prevCallback, pseudoElement, selector };
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(selector1, combinator, selector2) {
+    const selector = `${selector1.selector} ${combinator} ${selector2.selector}`;
+    return { ...cssSelectorBuilder, selector };
+  },
+
+  stringify() {
+    return this.selector;
   },
 };
 
